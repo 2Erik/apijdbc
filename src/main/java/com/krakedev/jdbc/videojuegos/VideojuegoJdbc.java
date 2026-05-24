@@ -186,4 +186,37 @@ public class VideojuegoJdbc {
 		return videojuego;
 	}
 	
+	///ELIMINAR
+	
+	public static boolean eliminar(String codigo) {
+		boolean eliminado = false;
+		Connection con = null;
+		PreparedStatement ps = null;
+		String sql = """
+				DELETE FROM videojuegos
+				WHERE codigo = ?
+				""";
+		
+		try {
+			con = Conexion.getConnection();
+			ps = con.prepareStatement(sql);
+			
+			ps.setString(1, codigo);
+			
+			int filas = ps.executeUpdate();
+			LOGGER.info("Filas eliminadas: "+filas);
+			eliminado = true;
+		} catch (Exception e) {
+			LOGGER.error("Error al eliminar "+e.getMessage());
+		}finally {
+			try {
+				if(con != null) {
+					con.close();
+				}
+			} catch (Exception e2) {
+				LOGGER.error("Error al cerar la conexion "+e2.getMessage());
+			}
+		}
+		return eliminado;
+	}
 }
