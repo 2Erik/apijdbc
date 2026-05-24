@@ -2,6 +2,9 @@ package com.krakedev.jdbc.videojuegos;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -52,5 +55,46 @@ public class VideojuegoJdbc {
 			}
 		}
 		return videojuego;
+	}
+	
+	public static List<Videojuego> listar(){
+		List<Videojuego> videojuegos = new ArrayList<Videojuego>();
+		Connection con = null;
+		PreparedStatement ps = null;
+		String sql = """
+				SELECT * FROM videojuegos
+				""";
+		ResultSet rs = null;
+		
+		try {
+			con = Conexion.getConnection();
+			ps = con.prepareStatement(sql);
+			
+			rs = ps.executeQuery();
+			
+			while(rs.next()) {
+				Videojuego v = new Videojuego(rs.getString("codigo"),
+						rs.getString("nombre"), 
+						rs.getString("plataforma"), 
+						rs.getDouble("precio"), 
+						rs.getBoolean("disponible"), 
+						rs.getString("genero"));
+				
+				videojuegos.add(v);
+				
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error al listar "+e.getMessage());
+		}finally {
+			try {
+				if(con != null) {
+					con.close();
+				}
+			} catch (Exception e2) {
+				LOGGER.error("Error al cerrar la conexion "+e2.getMessage());
+			}
+		}
+		
+		return videojuegos;
 	}
 }
