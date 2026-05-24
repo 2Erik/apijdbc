@@ -97,4 +97,42 @@ public class VideojuegoJdbc {
 		
 		return videojuegos;
 	}
+	
+	public static Videojuego buscar(String codigo) {
+		Connection con = null;
+		PreparedStatement ps = null;
+		String sql = """
+				SELECT * FROM videojuegos
+				WHERE codigo = ?
+				""";
+		ResultSet rs = null;
+		Videojuego videojuego = null;
+		
+		try {
+			con = Conexion.getConnection();
+			ps = con.prepareStatement(sql);
+			
+			rs = ps.executeQuery();
+			
+			if(rs.next()) {
+				videojuego = new Videojuego(rs.getString("codigo"),
+						rs.getString("nombre"), 
+						rs.getString("plataforma"), 
+						rs.getDouble("precio"), 
+						rs.getBoolean("disponible"), 
+						rs.getString("genero"));
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error al buscar "+e.getMessage());
+		}finally {
+			try {
+				if(con != null) {
+					con.close();
+				}
+			} catch (Exception e2) {
+				LOGGER.error("Error al cerrar la conexion "+e2.getMessage());
+			}
+		}
+		return videojuego;
+	}
 }
