@@ -15,6 +15,8 @@ import com.krakedev.videojuegos.entidades.Videojuego;
 public class VideojuegoJdbc {
 
 	private static final Logger LOGGER = LogManager.getLogger(VideojuegoJdbc.class);
+	
+	///INSERTAR
 
 	public static Videojuego insertar(String codigo, String nombre, String plataforma, double precio,
 			boolean disponible, String genero) {
@@ -57,6 +59,8 @@ public class VideojuegoJdbc {
 		return videojuego;
 	}
 	
+	///LISTAR
+	
 	public static List<Videojuego> listar(){
 		List<Videojuego> videojuegos = new ArrayList<Videojuego>();
 		Connection con = null;
@@ -98,6 +102,8 @@ public class VideojuegoJdbc {
 		return videojuegos;
 	}
 	
+	///BUSCAR
+	
 	public static Videojuego buscar(String codigo) {
 		Connection con = null;
 		PreparedStatement ps = null;
@@ -135,4 +141,49 @@ public class VideojuegoJdbc {
 		}
 		return videojuego;
 	}
+	
+	///ACTUALIZAR
+	
+	public static Videojuego actualizar(String codigo, String nombre, String plataforma, double precio,
+			boolean disponible, String genero) {
+		
+		Connection con = null;
+		PreparedStatement ps = null;
+		String sql = """
+				UPDATE videojuegos
+				SET nombre = ?, plataforma = ?, precio = ?, disponible = ?, genero = ?
+				WHERE codigo = ?
+				""";
+		Videojuego videojuego = null;
+		
+		try {
+			con = Conexion.getConnection();
+			ps = con.prepareStatement(sql);
+			
+			ps.setString(1, nombre);
+			ps.setString(2, plataforma);
+			ps.setDouble(3, precio);
+			ps.setBoolean(4, disponible);
+			ps.setString(5, genero);
+			ps.setString(6, codigo);
+			
+			int filas = ps.executeUpdate();
+			videojuego = new Videojuego(codigo, nombre, plataforma, precio, disponible, genero);
+			
+			LOGGER.info("Filas Actualizadas: "+filas);
+			
+		} catch (Exception e) {
+			LOGGER.error("Error al actualizar "+e.getMessage());
+		}finally {
+			try {
+				if(con != null) {
+					con.close();
+				}
+			} catch (Exception e2) {
+				LOGGER.error("Error al cerrar la conexion"+e2.getMessage());
+			}
+		}
+		return videojuego;
+	}
+	
 }
